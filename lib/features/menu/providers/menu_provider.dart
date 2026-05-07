@@ -11,6 +11,7 @@ final searchQueryProvider = StateProvider<String>((ref) => '');
 final selectedCategoryProvider = StateProvider<String>((ref) => 'All');
 
 final categoriesProvider = Provider<List<String>>((ref) {
+  ref.watch(dataVersionProvider);
   final cats =
       ref.watch(databaseServiceProvider).categories.map((c) => c.name).toList()
         ..sort();
@@ -18,6 +19,7 @@ final categoriesProvider = Provider<List<String>>((ref) {
 });
 
 final filteredProductsProvider = Provider<List<Product>>((ref) {
+  ref.watch(dataVersionProvider);
   final db = ref.watch(databaseServiceProvider);
   final query = ref.watch(searchQueryProvider).toLowerCase();
   final category = ref.watch(selectedCategoryProvider);
@@ -38,6 +40,7 @@ final filteredProductsProvider = Provider<List<Product>>((ref) {
 });
 
 final productByIdProvider = Provider.family<Product?, String>((ref, id) {
+  ref.watch(dataVersionProvider);
   final db = ref.watch(databaseServiceProvider);
   return db.getProduct(id);
 });
@@ -63,11 +66,13 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
       imagePath: imagePath,
     );
     await db.addProduct(product);
+    _ref.read(dataVersionProvider.notifier).state++;
   }
 
   Future<void> updateProduct(Product product) async {
     final db = _ref.read(databaseServiceProvider);
     await db.updateProduct(product);
+    _ref.read(dataVersionProvider.notifier).state++;
   }
 
   Future<void> toggleActive(String productId) async {
@@ -75,6 +80,7 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
     final product = db.getProduct(productId);
     if (product != null) {
       await db.updateProduct(product.copyWith(isActive: !product.isActive));
+      _ref.read(dataVersionProvider.notifier).state++;
     }
   }
 
@@ -82,7 +88,8 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
     final db = _ref.read(databaseServiceProvider);
     final product = db.getProduct(productId);
     if (product != null) {
-      await db.addProduct(product.copyWith(isActive: false));
+      await db.updateProduct(product.copyWith(isActive: false));
+      _ref.read(dataVersionProvider.notifier).state++;
     }
   }
 }

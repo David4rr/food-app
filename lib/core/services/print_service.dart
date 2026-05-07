@@ -1,5 +1,6 @@
 // lib/core/services/print_service.dart
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -22,14 +23,23 @@ class PrintService {
     );
   }
 
-  static Future<void> shareReceipt(Transaction txn) async {
+  static Future<void> shareReceipt(
+    BuildContext context,
+    Transaction txn,
+  ) async {
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
     final pdf = await _buildReceiptPdf(txn);
     final dir = Directory.systemTemp;
     final file = File('${dir.path}/receipt_${txn.id.substring(0, 8)}.pdf');
     await file.writeAsBytes(await pdf.save());
-    await Share.shareXFiles([
-      XFile(file.path),
-    ], text: 'Receipt #${txn.id.substring(0, 8)}');
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'Receipt #${txn.id.substring(0, 8)}',
+      sharePositionOrigin: origin,
+    );
   }
 
   static Future<pw.Document> _buildReceiptPdf(Transaction txn) async {

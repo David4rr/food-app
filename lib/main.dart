@@ -9,7 +9,6 @@ import 'core/router/router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final dbService = await DatabaseService.init();
-  await dbService.seedDemoData();
 
   runApp(
     ProviderScope(
@@ -27,58 +26,9 @@ class FoodApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
-      title: 'Dapurku',
-      theme: appTheme.copyWith(
-        cardTheme: CardThemeData(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: appTheme.colorScheme.outlineVariant.withValues(alpha: 0.4),
-            ),
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: appTheme.colorScheme.surfaceContainerHighest.withValues(
-            alpha: 0.3,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          ),
-        ),
-        navigationBarTheme: NavigationBarThemeData(
-          indicatorShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      darkTheme: appThemeDark.copyWith(
-        cardTheme: CardThemeData(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: appThemeDark.colorScheme.outlineVariant.withValues(
-                alpha: 0.3,
-              ),
-            ),
-          ),
-        ),
-      ),
+      title: 'Food POS',
+      theme: appTheme,
+      darkTheme: appThemeDark,
       themeMode: ThemeMode.system,
       routerConfig: router,
       debugShowCheckedModeBanner: false,

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/menu/presentation/menu_screen.dart';
 import '../../features/pos/presentation/pos_screen.dart';
 import '../../features/pos/presentation/checkout_screen.dart';
 import '../../features/transactions/presentation/history_screen.dart';
@@ -21,11 +20,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) => _AppShell(child: child),
         routes: [
-          GoRoute(
-            path: '/menu',
-            pageBuilder: (context, state) =>
-                const NoTransitionPage(child: MenuScreen()),
-          ),
           GoRoute(
             path: '/pos',
             pageBuilder: (context, state) =>
@@ -67,15 +61,10 @@ class _AppShell extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex(location),
         onDestinationSelected: (index) {
-          final routes = ['/menu', '/pos', '/insights', '/history'];
+          final routes = ['/pos', '/insights', '/history'];
           GoRouter.of(context).go(routes[index]);
         },
         destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.restaurant_menu_outlined),
-            selectedIcon: Icon(Icons.restaurant_menu),
-            label: 'Menu',
-          ),
           NavigationDestination(
             icon: Icon(Icons.point_of_sale_outlined),
             selectedIcon: Icon(Icons.point_of_sale),
@@ -97,10 +86,9 @@ class _AppShell extends ConsumerWidget {
   }
 
   int _selectedIndex(String location) {
-    if (location.startsWith('/menu')) return 0;
-    if (location.startsWith('/pos')) return 1;
-    if (location.startsWith('/insights')) return 2;
-    if (location.startsWith('/history')) return 3;
-    return 1;
+    if (location.startsWith('/pos')) return 0;
+    if (location.startsWith('/insights')) return 1;
+    if (location.startsWith('/history')) return 2;
+    return 0;
   }
 }

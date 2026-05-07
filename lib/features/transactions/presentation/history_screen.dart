@@ -46,7 +46,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               icon: const Icon(Icons.file_download_outlined),
               tooltip: 'Export CSV',
               onPressed: () =>
-                  ExportService.exportTransactionsCsv(transactions),
+                  ExportService.exportTransactionsCsv(context, transactions),
             ),
           if (_dateRange != null)
             IconButton(

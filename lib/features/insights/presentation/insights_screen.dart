@@ -28,9 +28,9 @@ class InsightsScreen extends ConsumerWidget {
               onSelected: (action) {
                 final allTxns = ref.read(databaseServiceProvider).transactions;
                 if (action == 'csv') {
-                  ExportService.exportTransactionsCsv(allTxns);
+                  ExportService.exportTransactionsCsv(context, allTxns);
                 } else if (action == 'pdf') {
-                  ExportService.exportReportPdf(allTxns);
+                  ExportService.exportReportPdf(context, allTxns);
                 }
               },
               itemBuilder: (_) => [

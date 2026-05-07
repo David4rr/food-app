@@ -1,5 +1,6 @@
 // lib/core/services/export_service.dart
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
@@ -7,7 +8,10 @@ import 'package:share_plus/share_plus.dart';
 import '../../models/transaction.dart';
 
 class ExportService {
-  static Future<void> exportTransactionsCsv(List<Transaction> txns) async {
+  static Future<void> exportTransactionsCsv(
+    BuildContext context,
+    List<Transaction> txns,
+  ) async {
     final buf = StringBuffer();
     buf.writeln('Date,Customer,Payment,Items,Total');
     final dateFmt = DateFormat('yyyy-MM-dd HH:mm');
@@ -23,11 +27,22 @@ class ExportService {
 
     final dir = Directory.systemTemp;
     final file = File('${dir.path}/transactions_export.csv');
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
     await file.writeAsString(buf.toString());
-    await Share.shareXFiles([XFile(file.path)], text: 'Transaction Export');
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'Transaction Export',
+      sharePositionOrigin: origin,
+    );
   }
 
-  static Future<void> exportReportPdf(List<Transaction> txns) async {
+  static Future<void> exportReportPdf(
+    BuildContext context,
+    List<Transaction> txns,
+  ) async {
     final pdf = pw.Document();
     final dateFmt = DateFormat('dd MMM yyyy');
     final currencyFmt = NumberFormat('#,##0');
@@ -125,7 +140,15 @@ class ExportService {
 
     final dir = Directory.systemTemp;
     final file = File('${dir.path}/sales_report.pdf');
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
     await file.writeAsBytes(await pdf.save());
-    await Share.shareXFiles([XFile(file.path)], text: 'Sales Report');
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'Sales Report',
+      sharePositionOrigin: origin,
+    );
   }
 }

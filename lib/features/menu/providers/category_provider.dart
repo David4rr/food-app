@@ -6,13 +6,17 @@ import '../../../core/services/database_service.dart';
 import '../../../models/category.dart';
 
 final categoryListProvider = Provider<List<ProductCategory>>((ref) {
-  final db = ref.watch(databaseServiceProvider);
-  return db.categories;
+  ref.watch(dataVersionProvider);
+  return ref.watch(databaseServiceProvider).categories;
 });
 
 final categoryNamesProvider = Provider<Set<String>>((ref) {
-  final db = ref.watch(databaseServiceProvider);
-  return db.categories.map((c) => c.name).toSet();
+  ref.watch(dataVersionProvider);
+  return ref
+      .watch(databaseServiceProvider)
+      .categories
+      .map((c) => c.name)
+      .toSet();
 });
 
 class CategoryNotifier extends StateNotifier<AsyncValue<void>> {
@@ -22,16 +26,20 @@ class CategoryNotifier extends StateNotifier<AsyncValue<void>> {
   CategoryNotifier(this._ref) : super(const AsyncValue.data(null));
 
   Future<void> add(String name) async {
-    final db = _ref.read(databaseServiceProvider);
-    await db.addCategory(ProductCategory(id: _uuid.v4(), name: name));
+    await _ref
+        .read(databaseServiceProvider)
+        .addCategory(ProductCategory(id: _uuid.v4(), name: name));
+    _ref.read(dataVersionProvider.notifier).state++;
   }
 
   Future<void> update(ProductCategory category) async {
     await _ref.read(databaseServiceProvider).updateCategory(category);
+    _ref.read(dataVersionProvider.notifier).state++;
   }
 
   Future<void> delete(String id) async {
     await _ref.read(databaseServiceProvider).deleteCategory(id);
+    _ref.read(dataVersionProvider.notifier).state++;
   }
 }
 

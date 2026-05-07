@@ -32,7 +32,7 @@ class TransactionDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.share_outlined),
             tooltip: 'Share Receipt',
-            onPressed: () => PrintService.shareReceipt(txn),
+            onPressed: () => PrintService.shareReceipt(context, txn),
           ),
           IconButton(
             icon: const Icon(Icons.print_outlined),

@@ -173,24 +173,39 @@ class DatabaseService extends ChangeNotifier {
     final prodFile = File('$_dirPath/products.json');
     final txnFile = File('$_dirPath/transactions.json');
 
-    if (await catFile.exists()) {
-      final json = jsonDecode(await catFile.readAsString()) as List<dynamic>;
-      _categories = json
-          .map((e) => ProductCategory.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    if (await prodFile.exists()) {
-      final json = jsonDecode(await prodFile.readAsString()) as List<dynamic>;
-      _products = json
-          .map((e) => Product.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    if (await txnFile.exists()) {
-      final json = jsonDecode(await txnFile.readAsString()) as List<dynamic>;
-      _transactions = json
-          .map((e) => Transaction.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
+    try {
+      if (await catFile.exists()) {
+        final text = await catFile.readAsString();
+        if (text.isNotEmpty) {
+          final json = jsonDecode(text) as List<dynamic>;
+          _categories = json
+              .map((e) => ProductCategory.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
+    try {
+      if (await prodFile.exists()) {
+        final text = await prodFile.readAsString();
+        if (text.isNotEmpty) {
+          final json = jsonDecode(text) as List<dynamic>;
+          _products = json
+              .map((e) => Product.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
+    try {
+      if (await txnFile.exists()) {
+        final text = await txnFile.readAsString();
+        if (text.isNotEmpty) {
+          final json = jsonDecode(text) as List<dynamic>;
+          _transactions = json
+              .map((e) => Transaction.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _save() async {

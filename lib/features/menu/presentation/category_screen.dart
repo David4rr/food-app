@@ -103,7 +103,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                                 .read(categoryNotifierProvider.notifier)
                                 .update(cat.copyWith(name: result.trim()));
                           }
-                          ctrl.dispose();
                         } else if (action == 'delete') {
                           final confirm = await showDialog<bool>(
                             context: context,
@@ -177,7 +176,6 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           if (result != null && result.isNotEmpty) {
             ref.read(categoryNotifierProvider.notifier).add(result);
           }
-          ctrl.dispose();
         },
         child: const Icon(Icons.add),
       ),
