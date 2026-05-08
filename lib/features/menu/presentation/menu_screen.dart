@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/services/image_service.dart';
 import '../../../models/product.dart';
 import '../providers/menu_provider.dart';
 import 'product_form_screen.dart';
@@ -239,7 +240,9 @@ class _ProductGridCard extends ConsumerWidget {
           children: [
             Expanded(
               flex: 3,
-              child: product.imagePath != null
+              child:
+                  product.imagePath != null &&
+                      ImageService.fileExists(product.imagePath)
                   ? Image.file(File(product.imagePath!), fit: BoxFit.cover)
                   : Container(
                       color: colors.primaryContainer.withValues(alpha: 0.4),

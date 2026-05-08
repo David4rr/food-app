@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/services/image_service.dart';
 import '../../../models/product.dart';
 import '../providers/menu_provider.dart';
 import '../providers/category_provider.dart';
@@ -53,7 +54,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       source: ImageSource.gallery,
       maxWidth: 800,
     );
-    if (picked != null) setState(() => _imagePath = picked.path);
+    if (picked != null) {
+      final path = await ImageService.savePickedImage(picked.path);
+      setState(() => _imagePath = path);
+    }
   }
 
   Future<void> _save() async {
@@ -118,7 +122,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     border: Border.all(color: colors.outlineVariant),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  child: _imagePath != null
+                  child:
+                      _imagePath != null && ImageService.fileExists(_imagePath)
                       ? Image.file(File(_imagePath!), fit: BoxFit.cover)
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,

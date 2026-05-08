@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/services/image_service.dart';
 import '../../../models/product.dart';
 import '../../menu/providers/menu_provider.dart';
 import '../../menu/providers/category_provider.dart';
@@ -235,7 +236,9 @@ class _ProductCard extends ConsumerWidget {
           children: [
             Expanded(
               flex: 3,
-              child: product.imagePath != null
+              child:
+                  product.imagePath != null &&
+                      ImageService.fileExists(product.imagePath)
                   ? Image.file(File(product.imagePath!), fit: BoxFit.cover)
                   : Container(
                       color: colors.primaryContainer.withValues(alpha: 0.35),
@@ -474,8 +477,11 @@ void _showProductForm(BuildContext context, WidgetRef ref, {Product? product}) {
                             maxWidth: 800,
                           );
                           if (picked != null) {
+                            final path = await ImageService.savePickedImage(
+                              picked.path,
+                            );
                             setSheetState(() {
-                              imagePath = picked.path;
+                              imagePath = path;
                             });
                           }
                         },
@@ -494,7 +500,9 @@ void _showProductForm(BuildContext context, WidgetRef ref, {Product? product}) {
                             ),
                           ),
                           clipBehavior: Clip.antiAlias,
-                          child: imagePath != null
+                          child:
+                              imagePath != null &&
+                                  ImageService.fileExists(imagePath)
                               ? Image.file(File(imagePath!), fit: BoxFit.cover)
                               : Column(
                                   mainAxisAlignment: MainAxisAlignment.center,

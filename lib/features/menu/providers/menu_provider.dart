@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/services/database_service.dart';
+import '../../../core/services/image_service.dart';
 import '../../../models/product.dart';
 
 final searchQueryProvider = StateProvider<String>((ref) => '');
@@ -71,6 +72,12 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
 
   Future<void> updateProduct(Product product) async {
     final db = _ref.read(databaseServiceProvider);
+    final oldProduct = db.getProduct(product.id);
+    if (oldProduct != null &&
+        oldProduct.imagePath != null &&
+        oldProduct.imagePath != product.imagePath) {
+      await ImageService.deleteImage(oldProduct.imagePath);
+    }
     await db.updateProduct(product);
     _ref.read(dataVersionProvider.notifier).state++;
   }
@@ -88,6 +95,7 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
     final db = _ref.read(databaseServiceProvider);
     final product = db.getProduct(productId);
     if (product != null) {
+      await ImageService.deleteImage(product.imagePath);
       await db.updateProduct(product.copyWith(isActive: false));
       _ref.read(dataVersionProvider.notifier).state++;
     }
