@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/services/image_service.dart';
 import '../../../models/product.dart';
@@ -27,6 +28,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   String? _selectedCategory;
   bool _saving = false;
   bool _useCustomCategory = false;
+  List<AddOn> _addOns = [];
 
   bool get _isEditing => widget.product != null;
 
@@ -39,6 +41,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     _customCategoryCtrl = TextEditingController(text: '');
     _selectedCategory = p?.category;
     _imagePath = p?.imagePath;
+    _addOns = List.from(p?.addOns ?? []);
   }
 
   @override
@@ -58,6 +61,67 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       final path = await ImageService.savePickedImage(picked.path);
       setState(() => _imagePath = path);
     }
+  }
+
+  Future<void> _addAddOn() async {
+    final nameCtrl = TextEditingController();
+    final priceCtrl = TextEditingController(text: '0');
+    final result = await showDialog<AddOn>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('New Add-on'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                hintText: 'e.g. No corn, Extra cheese',
+              ),
+              textCapitalization: TextCapitalization.words,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: priceCtrl,
+              decoration: const InputDecoration(
+                labelText: 'Extra Price',
+                prefixText: 'Rp ',
+                hintText: '0',
+              ),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              if (name.isEmpty) return;
+              Navigator.pop(
+                ctx,
+                AddOn(
+                  id: const Uuid().v4(),
+                  name: name,
+                  price: double.tryParse(priceCtrl.text.trim()) ?? 0,
+                ),
+              );
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+    nameCtrl.dispose();
+    priceCtrl.dispose();
+    if (result != null) setState(() => _addOns = [..._addOns, result]);
   }
 
   Future<void> _save() async {
@@ -80,6 +144,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               category: category,
               imagePath: _imagePath,
               clearImage: _imagePath == null,
+              addOns: _addOns,
             ),
           );
     } else {
@@ -90,6 +155,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             price: price,
             category: category,
             imagePath: _imagePath,
+            addOns: _addOns,
           );
     }
     if (mounted) Navigator.of(context).pop(true);
@@ -230,7 +296,76 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 label: const Text('Pick from list'),
                 onPressed: () => setState(() => _useCustomCategory = false),
               ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Text(
+                  'Add-ons',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: _addAddOn,
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Add'),
+                ),
+              ],
+            ),
+            if (_addOns.isNotEmpty) const SizedBox(height: 4),
+            ..._addOns.map(
+              (a) => Card(
+                margin: const EdgeInsets.only(bottom: 6),
+                child: ListTile(
+                  dense: true,
+                  leading: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: colors.primaryContainer,
+                    child: Text(
+                      a.name.isNotEmpty ? a.name[0].toUpperCase() : '?',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colors.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                  title: Text(a.name, style: const TextStyle(fontSize: 14)),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (a.price > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Text(
+                            '+Rp ${a.price.toStringAsFixed(0)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      IconButton(
+                        icon: Icon(Icons.close, size: 18, color: colors.error),
+                        onPressed: () => setState(
+                          () => _addOns = _addOns
+                              .where((x) => x.id != a.id)
+                              .toList(),
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
             FilledButton.icon(
               onPressed: _saving ? null : _save,
               icon: _saving

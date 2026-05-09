@@ -60,7 +60,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final cart = ref.watch(cartProvider);
     final total = ref.watch(
       cartProvider.select(
-        (c) => c.fold<double>(0, (s, i) => s + (i.price * i.quantity)),
+        (c) => c.fold<double>(
+          0,
+          (s, i) => s + (i.price + i.addOnsTotal) * i.quantity,
+        ),
       ),
     );
     final colors = Theme.of(context).colorScheme;
@@ -115,13 +118,41 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: Text(
-                              item.productName,
-                              style: Theme.of(context).textTheme.bodySmall,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.productName,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                if (item.selectedAddOnIds.isNotEmpty)
+                                  Text(
+                                    '+${item.selectedAddOnIds.length} add-on',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: colors.onSurfaceVariant,
+                                        ),
+                                  ),
+                                if (item.notes.isNotEmpty)
+                                  Text(
+                                    item.notes,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: colors.onSurfaceVariant,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                              ],
                             ),
                           ),
                           Text(
-                            'Rp ${(item.price * item.quantity).toStringAsFixed(0)}',
+                            'Rp ${((item.price + item.addOnsTotal) * item.quantity).toStringAsFixed(0)}',
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(fontWeight: FontWeight.w600),
                           ),

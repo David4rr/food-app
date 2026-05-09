@@ -115,6 +115,12 @@ class TransactionDetailScreen extends ConsumerWidget {
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(color: colors.onSurfaceVariant),
                             ),
+                          if (item.selectedAddOnIds.isNotEmpty)
+                            Text(
+                              '+${item.selectedAddOnIds.length} add-on',
+                              style: Theme.of(context).textTheme.labelSmall
+                                  ?.copyWith(color: colors.onSurfaceVariant),
+                            ),
                         ],
                       ),
                     ),

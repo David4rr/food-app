@@ -57,6 +57,7 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
     required double price,
     required String category,
     String? imagePath,
+    List<AddOn> addOns = const [],
   }) async {
     final db = _ref.read(databaseServiceProvider);
     final product = Product(
@@ -65,6 +66,7 @@ class MenuNotifier extends StateNotifier<AsyncValue<void>> {
       price: price,
       category: category,
       imagePath: imagePath,
+      addOns: addOns,
     );
     await db.addProduct(product);
     _ref.read(dataVersionProvider.notifier).state++;

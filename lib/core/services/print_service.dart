@@ -90,9 +90,27 @@ class PrintService {
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
                       pw.Expanded(
-                        child: pw.Text(
-                          '${item.productName}\n${item.quantity}x @ ${currencyFmt.format(item.price)}',
-                          style: const pw.TextStyle(fontSize: 8),
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.start,
+                          children: [
+                            pw.Text(
+                              '${item.productName}\n${item.quantity}x @ ${currencyFmt.format(item.price)}',
+                              style: const pw.TextStyle(fontSize: 8),
+                            ),
+                            if (item.customNotes.isNotEmpty)
+                              pw.Text(
+                                item.customNotes,
+                                style: pw.TextStyle(
+                                  fontSize: 7,
+                                  fontStyle: pw.FontStyle.italic,
+                                ),
+                              ),
+                            if (item.selectedAddOnIds.isNotEmpty)
+                              pw.Text(
+                                '+${item.selectedAddOnIds.length} add-on',
+                                style: const pw.TextStyle(fontSize: 7),
+                              ),
+                          ],
                         ),
                       ),
                       pw.Text(

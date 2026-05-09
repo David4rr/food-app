@@ -1,4 +1,3 @@
-// lib/features/pos/providers/checkout_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -14,6 +13,8 @@ class CartItem {
   final double price;
   int quantity;
   String notes;
+  List<String> selectedAddOnIds;
+  double addOnsTotal;
 
   CartItem({
     required this.productId,
@@ -21,6 +22,8 @@ class CartItem {
     required this.price,
     this.quantity = 1,
     this.notes = '',
+    this.selectedAddOnIds = const [],
+    this.addOnsTotal = 0,
   });
 }
 
@@ -43,6 +46,8 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
               price: state[i].price,
               quantity: state[i].quantity + 1,
               notes: state[i].notes,
+              selectedAddOnIds: state[i].selectedAddOnIds,
+              addOnsTotal: state[i].addOnsTotal,
             )
           else
             state[i],
@@ -70,6 +75,8 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
             price: item.price,
             quantity: quantity,
             notes: item.notes,
+            selectedAddOnIds: item.selectedAddOnIds,
+            addOnsTotal: item.addOnsTotal,
           )
         else
           item,
@@ -78,8 +85,14 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
 
   void clear() => state = [];
 
-  double get total => state.fold(0, (sum, i) => sum + (i.price * i.quantity));
+  double get total =>
+      state.fold(0, (sum, i) => sum + (i.price + i.addOnsTotal) * i.quantity);
 }
+
+final cartTotalProvider = Provider<double>((ref) {
+  final cart = ref.watch(cartProvider);
+  return cart.fold(0, (s, i) => s + (i.price + i.addOnsTotal) * i.quantity);
+});
 
 final checkoutProvider =
     StateNotifierProvider<CheckoutNotifier, AsyncValue<void>>((ref) {
@@ -116,6 +129,7 @@ class CheckoutNotifier extends StateNotifier<AsyncValue<void>> {
               quantity: c.quantity,
               price: c.price,
               customNotes: c.notes,
+              selectedAddOnIds: c.selectedAddOnIds,
             ),
           )
           .toList();

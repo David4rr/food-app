@@ -47,6 +47,7 @@ class TransactionItem {
   final int quantity;
   final double price;
   final String customNotes;
+  final List<String> selectedAddOnIds;
 
   const TransactionItem({
     required this.id,
@@ -56,6 +57,7 @@ class TransactionItem {
     required this.quantity,
     required this.price,
     this.customNotes = '',
+    this.selectedAddOnIds = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -66,6 +68,7 @@ class TransactionItem {
     'quantity': quantity,
     'price': price,
     'customNotes': customNotes,
+    'selectedAddOnIds': selectedAddOnIds,
   };
 
   factory TransactionItem.fromJson(Map<String, dynamic> json) =>
@@ -77,5 +80,10 @@ class TransactionItem {
         quantity: (json['quantity'] as num).toInt(),
         price: (json['price'] as num).toDouble(),
         customNotes: json['customNotes'] as String? ?? '',
+        selectedAddOnIds:
+            (json['selectedAddOnIds'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
       );
 }
